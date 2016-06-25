@@ -21,7 +21,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "com.github.ramonwirsch:fopRenderer:0.1.1"
+    classpath "gradle.plugin.com.github.ramonwirsch:fopRenderer:0.1.1"
   }
 }
 
