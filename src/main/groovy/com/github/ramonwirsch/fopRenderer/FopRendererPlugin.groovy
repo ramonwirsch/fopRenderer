@@ -10,7 +10,9 @@ import org.gradle.api.Task
 class FopRendererPlugin implements Plugin<Project> {
 
 	static boolean isOffline(Project project) {
-		if (project.properties.containsKey('offlineSchemas'))
+		if (project.gradle.startParameter.offline) {
+			return true;
+		} else if (project.properties.containsKey('offlineSchemas'))
 			return Boolean.valueOf(project.properties['offlineSchemas'])
 		else return false
 	}
