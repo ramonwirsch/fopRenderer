@@ -55,7 +55,6 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
 
@@ -83,7 +82,7 @@ public class XMLValidator {
 		saxParser = saxParserFactory.newSAXParser();
 	}
 
-    public boolean validate(File file) throws IOException, SAXException {
+	public boolean validate(File file) {
 
         try {
             logger.info("Parsing of " + file);
@@ -119,7 +118,9 @@ public class XMLValidator {
 
             logger.error(message.toString());
             return false;
-        }
-    }
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }

@@ -45,8 +45,11 @@ fopRenderer {
 	render {
 		renderGroupName { // used for task names
 			stylesheet = file('stylesheet.xsl')
-			src = file('main/file/to/render.xml')
-			resourcesDir = file('resources/dir') // pictures and stuff included in document
+			rootSrc = file('main/file/to/render.xml')
+			dependencies = fileTree('dep-files/*.xml') // files that are monitored by transformTask. Defaults to siblings of rootSrc
+			resources = file('resources/dir') // pictures and other resources. Links will be interpreted relative to this
+			resourceCollectionParams = [exclude: '**/*.xml'] // default: params for resource fileTree.
+			// resources + resourceCollectionParams will be combined into a FileCollection that is monitored for changes by the renderTask
 		}
 	}
 	

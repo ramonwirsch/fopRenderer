@@ -1,42 +1,40 @@
 package com.github.ramonwirsch.fopRenderer;
 
-import java.io.File;
-import java.io.IOException;
-
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-
-import javax.xml.transform.dom.DOMSource;
-
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
 public class XSLTTransformation {
 
+	private static final Logger logger = LoggerFactory.getLogger(XSLTTransformation.class);
 	private final File stylesheet;
 	private final StreamSource stylesheetSource;
 	private final Transformer transformer;
 	private final DocumentBuilder documentBuilder;
 
-	private static final Logger logger = LoggerFactory.getLogger(XSLTTransformation.class);
-
-	public XSLTTransformation(File stylesheet, Map<String, String> parameters) throws TransformerConfigurationException, ParserConfigurationException {
+	public XSLTTransformation(File stylesheet, Map<String, String> parameters) {
 		this.stylesheet = stylesheet;
 		this.stylesheetSource = new StreamSource(stylesheet);
 
-		this.transformer = TransformerFactory.newInstance().newTransformer(stylesheetSource);
+		try {
+			this.transformer = TransformerFactory.newInstance().newTransformer(stylesheetSource);
+		} catch (TransformerConfigurationException e) {
+			throw new RuntimeException(e);
+		}
 
 		for (Map.Entry<String,String> entry : parameters.entrySet()) {
 			transformer.setParameter(entry.getKey(), entry.getValue());
@@ -45,7 +43,11 @@ public class XSLTTransformation {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
 		documentBuilderFactory.setXIncludeAware(true);
-		documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		try {
+			documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public boolean transform(File in, File out) {
