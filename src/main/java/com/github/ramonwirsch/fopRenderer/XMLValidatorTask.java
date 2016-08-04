@@ -75,6 +75,7 @@ public class XMLValidatorTask extends DefaultTask {
 	}
 
 	@Override
+	@Internal
 	public String getDescription() {
 		return String.format("Validate all files of SchemaConfig group '%s'", schemaConfig.getName());
 	}

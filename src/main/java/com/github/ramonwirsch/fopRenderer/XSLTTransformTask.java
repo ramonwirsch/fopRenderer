@@ -43,6 +43,7 @@ public class XSLTTransformTask extends DefaultTask {
 	}
 
 	@Override
+	@Internal
 	public String getDescription() {
 		return String.format("Transform %s using the XSLT %s", getRenderConfig().getRootSrc().getName(), getStylesheet().getName());
 	}
