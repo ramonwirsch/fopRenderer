@@ -59,7 +59,7 @@ public class XMLValidatorTask extends DefaultTask {
 
     @Input
 	public URL getSchemaUri() {
-		if (FopRendererPlugin.isOffline(getProject()) || schemaConfig.getSchemaUri() != null) {
+		if (FopRendererPlugin.isOffline(getProject()) || schemaConfig.getSchemaUri() == null) {
 			if (schemaConfig.getOfflineSchema() == null)
 				throw new TaskInstantiationException(String.format("Offline schema validation requested but no offline schema given for '%s'", schemaConfig.getName()));
 			else
@@ -107,10 +107,16 @@ public class XMLValidatorTask extends DefaultTask {
 
 		if (!fullValidation) {
 			inputs.outOfDate(change -> {
+				File file = change.getFile();
+				logger.info("out of date: {}", file);
+
 				if (fullValidation)
 					return;
 
-				File file = change.getFile();
+				if (file.isDirectory()) {
+					return;
+				}
+
 				String name = file.getName();
 
 				if (name.endsWith(".xsd")) {
@@ -118,7 +124,6 @@ public class XMLValidatorTask extends DefaultTask {
 					return;
 				}
 
-				logger.info("out of date: {}", name);
 				toValidate.add(file);
 			});
 
