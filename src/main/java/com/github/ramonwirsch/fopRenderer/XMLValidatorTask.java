@@ -108,29 +108,34 @@ public class XMLValidatorTask extends DefaultTask {
 		if (!fullValidation) {
 			inputs.outOfDate(change -> {
 				File file = change.getFile();
-				logger.info("out of date: {}", file);
 
-				if (fullValidation)
+				if (fullValidation) {
 					return;
+				}
 
 				if (file.isDirectory()) {
-					return;
+					return; // ignore dirs // since 2.14
 				}
 
 				String name = file.getName();
 
 				if (name.endsWith(".xsd")) {
 					fullValidation = true;
+					logger.info("Schema {} changed, full validation!", file);
 					return;
 				}
+
+				logger.info("XML out of date: {}", file);
 
 				toValidate.add(file);
 			});
 
 			inputs.removed(change -> {
-				String name = change.getFile().getName();
+				File file = change.getFile();
+				String name = file.getName();
 				if (name.endsWith(".xsd")) {
 					fullValidation = true;
+					logger.info("Schema {} removed, full validation!", file);
 					return;
 				}
 
@@ -140,7 +145,7 @@ public class XMLValidatorTask extends DefaultTask {
 
 		if (fullValidation) {
 			toValidate.addAll(getSchemaConfig().getFiles().getFiles());
-			logger.warn("schema change detected, full validation required!");
+			logger.warn("Validating all inputs");
 		}
 
 		success = toValidate.stream().allMatch(validator::validate);

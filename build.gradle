@@ -1,12 +1,13 @@
 
 plugins {
-	id "com.gradle.plugin-publish" version "0.9.4"
+	id "com.gradle.plugin-publish" version "0.9.5"
+	id 'com.github.ben-manes.versions' version '0.13.0'
 	id 'java-gradle-plugin'
 	id 'maven'
 }
 
 group = 'com.github.ramonwirsch'
-version = '0.1.6'
+version = '0.1.7'
 
 repositories {
     jcenter()
