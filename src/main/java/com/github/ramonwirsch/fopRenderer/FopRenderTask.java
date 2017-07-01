@@ -7,11 +7,13 @@ import org.apache.fop.cli.InputHandler;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.ParallelizableTask;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
@@ -26,7 +28,7 @@ import java.util.Map;
 /**
  * Created by ramonw on 06.11.15.
  */
-@ParallelizableTask
+@CacheableTask
 public class FopRenderTask extends DefaultTask {
 
 	private final File outputDir = new File(getProject().getBuildDir(), "doc");
@@ -92,6 +94,7 @@ public class FopRenderTask extends DefaultTask {
     }
 
 	@InputFiles
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public FileCollection getResources() {
 		File resourcesBaseDir = renderConfig.getResourcesBaseDir();
 		Map<String, Object> params = new HashMap<>();
@@ -114,6 +117,7 @@ public class FopRenderTask extends DefaultTask {
 	}
 
 	@InputFile
+	@PathSensitive(PathSensitivity.NAME_ONLY)
 	public File getInput() {
 		return input;
 	}

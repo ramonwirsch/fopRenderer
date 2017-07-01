@@ -2,10 +2,13 @@ package com.github.ramonwirsch.fopRenderer;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
@@ -14,6 +17,7 @@ import java.util.Collections;
 /**
  * Created by ramonw on 06.11.15.
  */
+@CacheableTask
 public class XSLTTransformTask extends DefaultTask {
 
 	private RenderConfigExtension renderConfig;
@@ -23,6 +27,7 @@ public class XSLTTransformTask extends DefaultTask {
 	}
 
 	@InputFiles
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public FileCollection getSrcDependencies() {
 		return (renderConfig.getDependencies() != null) ? renderConfig.getDependencies() : getProject().fileTree(renderConfig.getRootSrc().getParentFile());
 	}
@@ -33,6 +38,7 @@ public class XSLTTransformTask extends DefaultTask {
 	}
 
 	@InputFile
+	@PathSensitive(PathSensitivity.NONE)
 	public File getStylesheet() {
 		return renderConfig.getStylesheet();
 	}

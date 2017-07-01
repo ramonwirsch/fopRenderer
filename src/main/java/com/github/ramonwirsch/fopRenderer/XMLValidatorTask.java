@@ -7,7 +7,8 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.ParallelizableTask;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.api.tasks.TaskInstantiationException;
@@ -25,7 +26,6 @@ import java.util.Set;
 /**
  * Created by ramonw on 06.11.15.
  */
-@ParallelizableTask
 public class XMLValidatorTask extends DefaultTask {
 
 	private final Logger logger = getLogger();
@@ -37,6 +37,7 @@ public class XMLValidatorTask extends DefaultTask {
 	}
 
 	@InputFiles
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public FileCollection getInputFiles() {
 		return schemaConfig.getFiles();
 	}
@@ -51,6 +52,7 @@ public class XMLValidatorTask extends DefaultTask {
 	}
 
 	@InputFiles
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public FileCollection getSchemaFiles() {
 		Project project = getProject();
 		File dir = schemaConfig.getSchemaDir() != null ? schemaConfig.getSchemaDir() : project.getProjectDir();
