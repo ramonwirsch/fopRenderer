@@ -7,7 +7,7 @@ Gradle Plugin for Validating XMLs and rendering them with Apache FOP
 
 ```groovy
 plugins {
-  id "com.github.ramonwirsch.FopRenderer" version "0.1.10"
+  id "com.github.ramonwirsch.FopRenderer" version "0.1.11"
 }
 ```
 or via the
@@ -21,7 +21,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.github.ramonwirsch:fopRenderer:0.1.10"
+    classpath "gradle.plugin.com.github.ramonwirsch:fopRenderer:0.1.11"
   }
 }
 
