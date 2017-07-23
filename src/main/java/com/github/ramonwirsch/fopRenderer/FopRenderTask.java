@@ -7,6 +7,7 @@ import org.apache.fop.cli.InputHandler;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
@@ -15,15 +16,18 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
+import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkerExecutor;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.inject.Inject;
 
 /**
  * Created by ramonw on 06.11.15.
@@ -33,13 +37,16 @@ public class FopRenderTask extends DefaultTask {
 
 	private final File outputDir = new File(getProject().getBuildDir(), "doc");
 	private final Logger logger = getLogger();
+	private final WorkerExecutor workerExecutor;
 	private RenderConfigExtension renderConfig;
 	private File input;
 	private boolean update;
 
-	public FopRenderTask() {
+	@Inject
+	public FopRenderTask(WorkerExecutor workerExecutor) {
 		setGroup("build");
 		setDescription("Render all available PDFs using fop");
+		this.workerExecutor = workerExecutor;
 	}
 
     @TaskAction
@@ -58,40 +65,61 @@ public class FopRenderTask extends DefaultTask {
 			update = true;
 		});
 
-		boolean success = render(getInput(), getOutputFile());
 
-        if (!success)
-			throw new TaskExecutionException(this, new Exception("One of the inputs failed to render. See log output"));
+		try {
+			String resourceBaseDir = renderConfig.getResourcesBaseDir().toURI().toURL().toExternalForm();
+
+			workerExecutor.submit(RenderWorker.class, (config) -> {
+				config.setIsolationMode(IsolationMode.NONE);
+				config.setParams(input, getOutputFile(), resourceBaseDir);
+			});
+		} catch (MalformedURLException e) {
+			logger.error("ResourceBaseDir is incorrectly configured!", e);
+		}
+
+
 	}
 
+	private static class RenderWorker implements Runnable {
+		private Logger logger = Logging.getLogger(this.getClass());
 
-	private boolean render(File inputFile, File outputFile) {
-		logger.info("Rendering {}", inputFile);
-		OutputStream outstream = null;
+		private File inputFile;
+		private File outputFile;
+		private String resourceBaseDir;
 
-        try {
-			InputHandler input = new InputHandler(inputFile);
-			FOUserAgent userAgent = FopFactory.newInstance().newFOUserAgent();
-			userAgent.setBaseURL(renderConfig.getResourcesBaseDir().toURI().toURL().toExternalForm());
+		@Inject
+		public RenderWorker(File inputFile, File outputFile, String resourceBaseDir) {
+			this.inputFile = inputFile;
+			this.outputFile = outputFile;
+			this.resourceBaseDir = resourceBaseDir;
+		}
 
-			outstream = new BufferedOutputStream(new FileOutputStream(outputFile));
+		@Override
+		public void run() {
+			OutputStream outstream = null;
 
-			input.renderTo(userAgent, MimeConstants.MIME_PDF, outstream);
-			logger.info("Successfully rendered {}", outputFile);
-			return true;
-		} catch (Exception e) {
-			logger.error("Unknown Exception in FOP", e);
-//            outputFile.delete()
-			throw new TaskExecutionException(this, e);
-		} finally {
-            try {
-				if (outstream != null)
-					outstream.close();
+			try {
+				InputHandler input = new InputHandler(inputFile);
+				FOUserAgent userAgent = FopFactory.newInstance().newFOUserAgent();
+				userAgent.setBaseURL(resourceBaseDir);
+
+				outstream = new BufferedOutputStream(new FileOutputStream(outputFile));
+
+				input.renderTo(userAgent, MimeConstants.MIME_PDF, outstream);
+				logger.info("Successfully rendered {}", outputFile);
 			} catch (Exception e) {
 				logger.error("Unknown Exception in FOP", e);
+				throw new RuntimeException(e);
+			} finally {
+				try {
+					if (outstream != null)
+						outstream.close();
+				} catch (Exception e) {
+					logger.error("Unknown Exception in FOP", e);
+				}
 			}
-        }
-    }
+		}
+	}
 
 	@InputFiles
 	@PathSensitive(PathSensitivity.RELATIVE)

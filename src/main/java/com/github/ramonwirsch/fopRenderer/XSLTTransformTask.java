@@ -10,9 +10,12 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkerExecutor;
 
 import java.io.File;
 import java.util.Collections;
+import javax.inject.Inject;
 
 /**
  * Created by ramonw on 06.11.15.
@@ -20,9 +23,12 @@ import java.util.Collections;
 @CacheableTask
 public class XSLTTransformTask extends DefaultTask {
 
+	private final WorkerExecutor workerExecutor;
 	private RenderConfigExtension renderConfig;
 
-	public XSLTTransformTask() {
+	@Inject
+	public XSLTTransformTask(WorkerExecutor workerExecutor) {
+		this.workerExecutor = workerExecutor;
 		setGroup("build");
 	}
 
@@ -65,8 +71,31 @@ public class XSLTTransformTask extends DefaultTask {
 
 	@TaskAction
     void run() {
-		XSLTTransformation transformer = new XSLTTransformation(getStylesheet(), Collections.emptyMap());
+		workerExecutor.submit(TransformWorker.class, (config) -> {
+			config.setIsolationMode(IsolationMode.NONE);
+			config.setParams(getStylesheet(), getOutputFile(), renderConfig.getRootSrc());
+		});
+	}
 
-		transformer.transform(getRenderConfig().getRootSrc(), getOutputFile());
+	private static class TransformWorker implements Runnable {
+
+		private final File stylesheet;
+		private final File outputFile;
+		private final File rootSrc;
+
+		@Inject
+		public TransformWorker(File stylesheet, File outputFile, File rootSrc) {
+
+			this.stylesheet = stylesheet;
+			this.outputFile = outputFile;
+			this.rootSrc = rootSrc;
+		}
+
+		@Override
+		public void run() {
+			XSLTTransformation transformer = new XSLTTransformation(stylesheet, Collections.emptyMap());
+
+			transformer.transform(rootSrc, outputFile);
+		}
 	}
 }
