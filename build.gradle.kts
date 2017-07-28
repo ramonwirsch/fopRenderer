@@ -1,9 +1,16 @@
 plugins {
+	`build-scan`
 	id("com.gradle.plugin-publish") version "0.9.5"
-	id("com.github.ben-manes.versions") version "0.13.0"
+	id("com.github.ben-manes.versions") version "0.15.0"
 	`java-gradle-plugin`
-	`embedded-kotlin`
 	maven
+	`embedded-kotlin`
+	`kotlin-dsl`
+}
+
+buildScan {
+	setLicenseAgreementUrl("https://gradle.com/terms-of-service")
+	setLicenseAgree("yes")
 }
 
 //group = "com.github.ramonwirsch"
@@ -12,7 +19,6 @@ version = "0.1.11"
 repositories {
 	jcenter()
 }
-
 
 dependencies {
 	compile("org.apache.avalon.framework:avalon-framework-impl:4.3.1")

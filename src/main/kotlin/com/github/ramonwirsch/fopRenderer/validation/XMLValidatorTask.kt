@@ -48,7 +48,7 @@ open class XMLValidatorTask
 			val project = project
 			val dir = if (schemaConfig.schemaDir != null) schemaConfig.schemaDir else project.projectDir
 			return project.fileTree(dir) {
-				it.include("*.xsd")
+				include("*.xsd")
 			}
 		}
 
@@ -89,9 +89,7 @@ open class XMLValidatorTask
 		val toValidate = HashSet<File>()
 
 		if (!isFullValidation) {
-			inputs.outOfDate { change ->
-				val file = change.file
-
+			inputs.outOfDate {
 				when {
 					isFullValidation || file.isDirectory -> {
 					}
@@ -106,8 +104,7 @@ open class XMLValidatorTask
 				}
 			}
 
-			inputs.removed { change ->
-				val file = change.file
+			inputs.removed {
 				val name = file.name
 
 				if (name.endsWith(".xsd")) {
@@ -125,9 +122,9 @@ open class XMLValidatorTask
 		}
 
 		toValidate.forEach { v ->
-			workerExecutor.submit(ValidationWorker::class.java) { config ->
-				config.isolationMode = IsolationMode.NONE
-				config.setParams(validationSchema, v)
+			workerExecutor.submit(ValidationWorker::class.java) {
+				isolationMode = IsolationMode.NONE
+				setParams(validationSchema, v)
 			}
 		}
 	}

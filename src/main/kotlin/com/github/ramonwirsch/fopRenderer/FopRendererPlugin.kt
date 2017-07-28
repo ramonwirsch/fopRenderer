@@ -3,13 +3,12 @@ package com.github.ramonwirsch.fopRenderer
 import com.github.ramonwirsch.fopRenderer.validation.XMLValidatorTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.BasePlugin
 
 open class FopRendererPlugin : Plugin<Project> {
 
 	override fun apply(project: Project) {
-		project.apply {
-			it.plugin("base")
-		}
+		project.pluginManager.apply(BasePlugin::class.java)
 
 		val schemas = project.container(SchemaConfigExtension::class.java) { name -> SchemaConfigExtension(name, project) }
 
@@ -19,16 +18,16 @@ open class FopRendererPlugin : Plugin<Project> {
 
 		val tasks = project.tasks
 
-		val validateAllTask = tasks.create("validate") { it ->
-			it.group = "verification"
-			it.description = "Validate all XML files"
+		val validateAllTask = tasks.create("validate") {
+			group = "verification"
+			description = "Validate all XML files"
 		}
 
 		tasks.findByName("check").dependsOn(validateAllTask)
 
-		project.afterEvaluate { _ ->
+		project.afterEvaluate {
 			fopRenderer.schemas.forEach { schemaConfig ->
-				val currentValidationTask = tasks.create("validate" + schemaConfig.name.capitalize(), XMLValidatorTask::class.java) { task -> task.schemaConfig = schemaConfig }
+				val currentValidationTask = tasks.create("validate" + schemaConfig.name.capitalize(), XMLValidatorTask::class.java) { this.schemaConfig = schemaConfig }
 
 				validateAllTask.dependsOn(currentValidationTask)
 			}
@@ -37,15 +36,15 @@ open class FopRendererPlugin : Plugin<Project> {
 
 			fopRenderer.render.forEach { renderConfig ->
 
-				val currentTransformTask = tasks.create("transform" + renderConfig.name.capitalize(), XSLTTransformTask::class.java) { task ->
-					task.renderConfig = renderConfig
-					task.dependsOn(validateAllTask)
+				val currentTransformTask = tasks.create("transform" + renderConfig.name.capitalize(), XSLTTransformTask::class.java) {
+					this.renderConfig = renderConfig
+					dependsOn(validateAllTask)
 				}
 
-				val currentRenderTask = tasks.create("render" + renderConfig.name.capitalize(), FopRenderTask::class.java) { task ->
-					task.renderConfig = renderConfig
-					task.input = currentTransformTask.outputFile
-					task.dependsOn(currentTransformTask)
+				val currentRenderTask = tasks.create("render" + renderConfig.name.capitalize(), FopRenderTask::class.java) {
+					this.renderConfig = renderConfig
+					input = currentTransformTask.outputFile
+					dependsOn(currentTransformTask)
 				}
 
 				buildTask.dependsOn(currentRenderTask)
