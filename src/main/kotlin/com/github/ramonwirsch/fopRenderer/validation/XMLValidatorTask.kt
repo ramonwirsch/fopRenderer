@@ -24,7 +24,7 @@ import javax.xml.parsers.ParserConfigurationException
 
 open class XMLValidatorTask
 @Inject constructor(
-		val workerExecutor: WorkerExecutor
+		private val workerExecutor: WorkerExecutor
 ) : DefaultTask() {
 
 	@get:Internal

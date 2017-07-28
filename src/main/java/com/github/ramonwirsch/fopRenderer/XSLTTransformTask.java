@@ -2,20 +2,13 @@ package com.github.ramonwirsch.fopRenderer;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.tasks.CacheableTask;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.PathSensitive;
-import org.gradle.api.tasks.PathSensitivity;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.util.Collections;
-import javax.inject.Inject;
 
 /**
  * Created by ramonw on 06.11.15.
@@ -50,6 +43,7 @@ public class XSLTTransformTask extends DefaultTask {
 	}
 
 	@InputFile
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public File getRootSrc() {
 		return renderConfig.getRootSrc();
 	}
