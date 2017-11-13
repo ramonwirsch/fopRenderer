@@ -2,15 +2,13 @@ package com.github.ramonwirsch.fopRenderer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -18,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class XSLTTransformation {
+public class XSLTTransformation implements ErrorListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(XSLTTransformation.class);
 	private final File stylesheet;
@@ -50,36 +48,36 @@ public class XSLTTransformation {
 		}
 	}
 
-	public boolean transform(File in, File out) {
+	public void transform(File in, File out) throws TransformerException {
 		logger.info("Transforming {}", in);
+		transformer.setErrorListener(this);
 
+		Document parse;
 		try {
-//			DOMResult result=new DOMResult();
-//			transformer.transform(
-//					new DOMSource(documentBuilder.parse(new File(input))),
-//					new StreamResult(new File(output)));
-			
-			transformer.transform(new DOMSource(documentBuilder.parse(in)),
-					new StreamResult(out));
-
-//			DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-//
-//			DOMImplementationLS impl =
-//			    (DOMImplementationLS)registry.getDOMImplementation("LS");
-//
-//			LSSerializer writer = impl.createLSSerializer();
-//			writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
-//			LSOutput outputLS = impl.createLSOutput();
-//			FileOutputStream byteStream = new FileOutputStream(out);
-//			outputLS.setByteStream(byteStream);
-//			writer.write(result.getNode(), outputLS);
-//
-//			byteStream
-			logger.info("Successfully transformed {}", out);
-			return true;
-		} catch (IOException | TransformerException | SAXException e) {
-			logger.error("Transform Error", e);
-			return false;
+			parse = documentBuilder.parse(in);
+		} catch (IOException | SAXException e) {
+			throw new TransformerException(e);
 		}
+
+		transformer.transform(new DOMSource(parse),
+				new StreamResult(out));
+
+		logger.info("Successfully transformed {}", out);
+	}
+
+	@Override
+	public void warning(TransformerException e) throws TransformerException {
+		logger.warn("Transform Warning: {}", e.getMessageAndLocation());
+	}
+
+	@Override
+	public void error(TransformerException e) throws TransformerException {
+		throw e;
+
+	}
+
+	@Override
+	public void fatalError(TransformerException e) throws TransformerException {
+		throw e;
 	}
 }
