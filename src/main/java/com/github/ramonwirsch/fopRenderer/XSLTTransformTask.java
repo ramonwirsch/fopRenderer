@@ -7,6 +7,7 @@ import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
+import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.util.Collections;
 
@@ -89,7 +90,11 @@ public class XSLTTransformTask extends DefaultTask {
 		public void run() {
 			XSLTTransformation transformer = new XSLTTransformation(stylesheet, Collections.emptyMap());
 
-			transformer.transform(rootSrc, outputFile);
+			try {
+				transformer.transform(rootSrc, outputFile);
+			} catch (TransformerException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 }

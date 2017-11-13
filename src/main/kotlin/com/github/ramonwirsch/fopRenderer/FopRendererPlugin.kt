@@ -23,7 +23,7 @@ open class FopRendererPlugin : Plugin<Project> {
 			description = "Validate all XML files"
 		}
 
-		tasks.findByName("check").dependsOn(validateAllTask)
+		tasks.findByName("check")!!.dependsOn(validateAllTask)
 
 		project.afterEvaluate {
 			fopRenderer.schemas.forEach { schemaConfig ->
@@ -32,7 +32,7 @@ open class FopRendererPlugin : Plugin<Project> {
 				validateAllTask.dependsOn(currentValidationTask)
 			}
 
-			val buildTask = tasks.findByName("build")
+			val buildTask = tasks.findByName("build")!!
 
 			fopRenderer.render.forEach { renderConfig ->
 
