@@ -1,7 +1,7 @@
 plugins {
-	`build-scan`
-	id("com.gradle.plugin-publish") version "0.9.5"
-	id("com.github.ben-manes.versions") version "0.15.0"
+	`build-scan` version "1.10.2"
+	id("com.gradle.plugin-publish") version "0.9.9"
+	id("com.github.ben-manes.versions") version "0.17.0"
 	`java-gradle-plugin`
 	maven
 	`embedded-kotlin`
@@ -13,8 +13,8 @@ buildScan {
 	setLicenseAgree("yes")
 }
 
-//group = "com.github.ramonwirsch"
-version = "0.1.12"
+group = "com.github.ramonwirsch"
+version = "0.1.15"
 
 repositories {
 	jcenter()
@@ -33,7 +33,7 @@ pluginBundle {
 	description = "Plugin that can render documents using Apache FOP. It can also validate XMLs against XSD schemas."
 	tags = listOf("Apache FOP", "FOP", "XML", "XSD", "Validation", "XML Schema Validation")
 
-	this.plugins {
+	(plugins) {
 		"fopRendererPlugin" {
 			id = "com.github.ramonwirsch.FopRenderer"
 			displayName = "FOP Renderer plugin"
