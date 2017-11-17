@@ -29,7 +29,7 @@ class SchemaConfigExtension(
 	 * Local backup location for schemas
 	 *
 	 */
-	lateinit var offlineSchema: File
+	var offlineSchema: File? = null
 
 	/**
 	 * force use of XML schemas configured inside source files

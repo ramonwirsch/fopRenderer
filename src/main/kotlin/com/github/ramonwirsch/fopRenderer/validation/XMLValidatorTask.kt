@@ -56,11 +56,12 @@ open class XMLValidatorTask
 		@Input
 		get() {
 			if (FopRendererPlugin.isOffline(project) || schemaConfig.schemaUri == null) {
-				if (schemaConfig.offlineSchema == null)
+				val offlineSchema = schemaConfig.offlineSchema
+				if (offlineSchema == null)
 					throw TaskInstantiationException(String.format("Offline schema validation requested but no offline schema given for '%s'", schemaConfig.name))
 				else
 					try {
-						return schemaConfig.offlineSchema.toURI().toURL()
+						return offlineSchema.toURI().toURL()
 					} catch (e: MalformedURLException) {
 						throw RuntimeException(e)
 					}
