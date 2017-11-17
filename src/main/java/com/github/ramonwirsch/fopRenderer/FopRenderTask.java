@@ -125,10 +125,8 @@ public class FopRenderTask extends DefaultTask {
 	@PathSensitive(PathSensitivity.RELATIVE)
 	public FileCollection getResources() {
 		File resourcesBaseDir = renderConfig.getResourcesBaseDir();
-		Map<String, Object> params = new HashMap<>();
 		Map<String, Object> resourceCollectionParams = renderConfig.getResourceCollectionParams();
-		if (resourceCollectionParams != null)
-			params.putAll(resourceCollectionParams);
+		Map<String, Object> params = new HashMap<>(resourceCollectionParams);
 
 		params.put("dir", resourcesBaseDir);
 		return getProject().fileTree(params);

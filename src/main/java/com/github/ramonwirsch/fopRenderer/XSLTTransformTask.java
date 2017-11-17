@@ -28,7 +28,7 @@ public class XSLTTransformTask extends DefaultTask {
 
 	@InputFiles
 	@PathSensitive(PathSensitivity.RELATIVE)
-	public FileCollection getSrcDependencies() {
+	public FileCollection getDependencies() {
 		return (renderConfig.getDependencies() != null) ? renderConfig.getDependencies() : getProject().fileTree(renderConfig.getRootSrc().getParentFile());
 	}
 
