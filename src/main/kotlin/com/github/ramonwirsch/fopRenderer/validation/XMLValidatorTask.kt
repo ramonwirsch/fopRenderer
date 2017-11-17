@@ -66,7 +66,7 @@ open class XMLValidatorTask
 					}
 
 			} else return if (!schemaConfig.isUseInherentSchemas)
-				schemaConfig.schemaUri
+				schemaConfig.schemaUri!!
 			else
 				SchemaConfigExtension.FALLBACK_URL
 		}
