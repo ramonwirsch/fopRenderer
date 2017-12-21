@@ -4,13 +4,7 @@ import com.github.ramonwirsch.fopRenderer.FopRendererPlugin
 import com.github.ramonwirsch.fopRenderer.SchemaConfigExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.TaskInstantiationException
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import org.gradle.workers.IsolationMode
 import org.gradle.workers.WorkerExecutor
@@ -46,7 +40,7 @@ open class XMLValidatorTask
 		@PathSensitive(PathSensitivity.RELATIVE)
 		get() {
 			val project = project
-			val dir = if (schemaConfig.schemaDir != null) schemaConfig.schemaDir else project.projectDir
+			val dir = schemaConfig.schemaDir ?: project.projectDir
 			return project.fileTree(dir) {
 				include("*.xsd")
 			}
