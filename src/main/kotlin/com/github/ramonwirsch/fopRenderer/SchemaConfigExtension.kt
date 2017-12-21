@@ -5,7 +5,6 @@ import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.file.FileCollection
 import java.io.File
 import java.net.MalformedURLException
-import java.net.URI
 import java.net.URL
 
 class SchemaConfigExtension(
@@ -60,11 +59,11 @@ class SchemaConfigExtension(
 
 	/**
 	 * Get the configured schema
-	 * Defaults to implicit schemas
+	 * Defaults to offlineSchemas or implicit schemas
 	 *
 	 */
 	var schemaUri: URL? = null
-		get() = field ?: FALLBACK_URL
+		get() = field ?: offlineSchema?.let { it.toURI().toURL() } ?: FALLBACK_URL
 
 	/**
 	 * Set the schema to use for validation
