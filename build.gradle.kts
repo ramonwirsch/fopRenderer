@@ -1,7 +1,7 @@
 plugins {
-	`build-scan` version "1.10.2"
-	id("com.gradle.plugin-publish") version "0.9.9"
-	id("com.github.ben-manes.versions") version "0.17.0"
+	`build-scan` version "1.15.1"
+	id("com.gradle.plugin-publish") version "0.9.10"
+	id("com.github.ben-manes.versions") version "0.20.0"
 	`java-gradle-plugin`
 	maven
 	`embedded-kotlin`
