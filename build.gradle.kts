@@ -8,16 +8,26 @@ plugins {
 	`kotlin-dsl`
 }
 
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
 buildScan {
 	setLicenseAgreementUrl("https://gradle.com/terms-of-service")
 	setLicenseAgree("yes")
 }
 
 group = "com.github.ramonwirsch"
-version = "0.1.18"
+version = "0.1.20"
 
 repositories {
 	jcenter()
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
 }
 
 dependencies {
