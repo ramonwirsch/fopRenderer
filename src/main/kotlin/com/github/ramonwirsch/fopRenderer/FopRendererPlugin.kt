@@ -38,7 +38,10 @@ open class FopRendererPlugin : Plugin<Project> {
 
 				val currentTransformTask = tasks.create("transform" + renderConfig.name.capitalize(), XSLTTransformTask::class.java) {
 					this.renderConfig = renderConfig
-					dependsOn(validateAllTask)
+
+					if (renderConfig.isRequiresValidation) {
+						dependsOn(validateAllTask)
+					}
 				}
 
 				val currentRenderTask = tasks.create("render" + renderConfig.name.capitalize(), FopRenderTask::class.java) {

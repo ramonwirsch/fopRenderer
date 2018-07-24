@@ -26,7 +26,7 @@ class XMLValidatorFactory
 
 	init {
 		val schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-		schema = schemaFactory.newSchema(schemaUri)
+		schema = if (schemaUri == null) schemaFactory.newSchema() else schemaFactory.newSchema(schemaUri)
 		saxParserFactory = SAXParserFactory.newInstance()
 		saxParserFactory.isNamespaceAware = true
 		saxParserFactory.isValidating = true

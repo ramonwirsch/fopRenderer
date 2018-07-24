@@ -36,7 +36,8 @@ fopRenderer {
 		schemaGroupName { // used for task names
 			files = file('some.xml') // or fileTree(dir: 'xmlDir', include: '*.xml')
 			schemaUri = 'http://www.url.com/to/some/schema.xsd'
-			offlineSchema = file('offlineSchema.xsd')
+			offlineSchema = file('offlineSchema.xsd') // [optional]
+			useInherentSchemas = false // [default: false] uses xsi:schemaLocation tags or Doctype statements in the XML files for validation instead of forced schema
 		}
 		// ... as many different groups as you like
 	}
@@ -50,12 +51,9 @@ fopRenderer {
 			resources = file('resources/dir') // pictures and other resources. Links will be interpreted relative to this
 			resourceCollectionParams = [exclude: '**/*.xml'] // default: params for resource fileTree.
 			// resources + resourceCollectionParams will be combined into a FileCollection that is monitored for changes by the renderTask
+			requiresValidation = true // [default: true] whether to require passing of schema validation before attempting to transform/render
 		}
 	}
-	
-	/*schemas.all { // uncomment to use xsi:schemaLocation tags in in XML files for validation instead of forced schema
-		useInherentSchemas=true
-	}*/
 }
 ```
 

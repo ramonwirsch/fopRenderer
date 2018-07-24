@@ -74,7 +74,7 @@ open class XMLValidatorTask
 	internal fun execute(inputs: IncrementalTaskInputs) {
 		val validationSchema = if (!FopRendererPlugin.isOffline(project) && schemaConfig.isUseInherentSchemas) {
 			logger.info("Using inherent schemas")
-			null
+			SchemaConfigExtension.FALLBACK_URL
 		} else {
 			val schemaUri = schemaUri
 			logger.info("Using schema {}", schemaUri)
@@ -125,13 +125,15 @@ open class XMLValidatorTask
 	}
 }
 
-private class ValidationWorker
+open private class ValidationWorker
 @Inject constructor(
 		validationSchema: URL?,
 		val input: File
 ) : Runnable {
 
-	private val validator = XMLValidatorFactory.forSchema(validationSchema).createValidator()
+	private val actualValSchema = if (validationSchema == SchemaConfigExtension.FALLBACK_URL) null else validationSchema
+
+	private val validator = XMLValidatorFactory.forSchema(actualValSchema).createValidator()
 
 	override fun run() {
 		validator.validateOrThrow(input)

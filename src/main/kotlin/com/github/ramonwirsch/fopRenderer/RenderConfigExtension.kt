@@ -34,4 +34,9 @@ class RenderConfigExtension(val name: String) {
 	 * Additional params fed to gradles [org.gradle.api.Project.fileTree] method
 	 */
 	var resourceCollectionParams: Map<String, Any> = mapOf("exclude" to "**/*.xml")
+
+	/**
+	 * whether all validations must have passed before trying to render
+	 */
+	var isRequiresValidation: Boolean = true
 }
