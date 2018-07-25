@@ -25,33 +25,33 @@ open class FopRendererPlugin : Plugin<Project> {
 
 		tasks.findByName("check")!!.dependsOn(validateAllTask)
 
-		project.afterEvaluate {
-			fopRenderer.schemas.forEach { schemaConfig ->
-				val currentValidationTask = tasks.create("validate" + schemaConfig.name.capitalize(), XMLValidatorTask::class.java) { this.schemaConfig = schemaConfig }
+		fopRenderer.schemas.all {
+			val schemaConfig = this
+			val currentValidationTask = tasks.create("validate" + schemaConfig.name.capitalize(), XMLValidatorTask::class.java) { this.schemaConfig = schemaConfig }
 
-				validateAllTask.dependsOn(currentValidationTask)
+			validateAllTask.dependsOn(currentValidationTask)
+		}
+
+		val buildTask = tasks.findByName("build")!!
+
+		fopRenderer.render.all {
+			val renderConfig = this
+
+			val currentTransformTask = tasks.create("transform" + renderConfig.name.capitalize(), XSLTTransformTask::class.java) {
+				this.renderConfig = renderConfig
+
+				if (renderConfig.isRequiresValidation) {
+					dependsOn(validateAllTask)
+				}
 			}
 
-			val buildTask = tasks.findByName("build")!!
-
-			fopRenderer.render.forEach { renderConfig ->
-
-				val currentTransformTask = tasks.create("transform" + renderConfig.name.capitalize(), XSLTTransformTask::class.java) {
-					this.renderConfig = renderConfig
-
-					if (renderConfig.isRequiresValidation) {
-						dependsOn(validateAllTask)
-					}
-				}
-
-				val currentRenderTask = tasks.create("render" + renderConfig.name.capitalize(), FopRenderTask::class.java) {
-					this.renderConfig = renderConfig
-					input = currentTransformTask.outputFile
-					dependsOn(currentTransformTask)
-				}
-
-				buildTask.dependsOn(currentRenderTask)
+			val currentRenderTask = tasks.create("render" + renderConfig.name.capitalize(), FopRenderTask::class.java) {
+				this.renderConfig = renderConfig
+				input = currentTransformTask.outputFile // TODO better PropertyProvider, but outputFile is not configurable, this cannot be changed by user after the fact
+				dependsOn(currentTransformTask)
 			}
+
+			buildTask.dependsOn(currentRenderTask)
 		}
 	}
 
