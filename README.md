@@ -5,14 +5,21 @@ Gradle Plugin for Validating XMLs and rendering them with Apache FOP
 
 ### `plugins` block:
 
+### groovy
 ```groovy
 plugins {
   id "com.github.ramonwirsch.FopRenderer" version "0.1.20"
 }
 ```
+### kotlin
+```kotlin
+plugins {
+    id("com.github.ramonwirsch.FopRenderer") version "0.1.20"
+}
+```
 or via the
 
-### `buildscript` block:
+### `buildscript` block (groovy):
 ```groovy
 buildscript {
   repositories {
@@ -29,6 +36,7 @@ apply plugin: "com.github.ramonwirsch.FopRenderer"
 ```
 
 ## `fopRenderer` configuration:
+### groovy
 ```groovy
 fopRenderer {
   // groups of files to validated each against 1 schema (URL or local file)
@@ -52,6 +60,34 @@ fopRenderer {
 			resourceCollectionParams = [exclude: '**/*.xml'] // default: params for resource fileTree.
 			// resources + resourceCollectionParams will be combined into a FileCollection that is monitored for changes by the renderTask
 			requiresValidation = true // [default: true] whether to require passing of schema validation before attempting to transform/render
+		}
+	}
+}
+```
+### kotlin
+```kotlin
+fopRenderer {
+  // groups of files to validated each against 1 schema (URL or local file)
+	schemas {
+		"schemaGroupName" { // used for task names
+			files = file("some.xml") // or fileTree(dir: "xmlDir", include: "*.xml")
+			setSchemaUri("http://www.url.com/to/some/schema.xsd")
+			offlineSchema = file("offlineSchema.xsd") // [optional]
+			isUseInherentSchemas = false // [default: false] uses xsi:schemaLocation tags or Doctype statements in the XML files for validation instead of forced schema
+		}
+		// ... as many different groups as you like
+	}
+	
+	// files that should be rendered with FOP
+	render {
+		"renderGroupName" { // used for task names
+			stylesheet = file("stylesheet.xsl")
+			rootSrc = file("main/file/to/render.xml")
+			dependencies = fileTree("dep-files/*.xml") // files that are monitored by transformTask. Defaults to siblings of rootSrc
+			resourcesBaseDir = file("resources/dir") // pictures and other resources. Links will be interpreted relative to this
+			resourceCollectionParams = mapOf("exclude" to "**/*.xml") // default: params for resource fileTree.
+			// resources + resourceCollectionParams will be combined into a FileCollection that is monitored for changes by the renderTask
+			isRequiresValidation = true // [default: true] whether to require passing of schema validation before attempting to transform/render
 		}
 	}
 }
