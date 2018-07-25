@@ -12,7 +12,7 @@ open class FopRendererPlugin : Plugin<Project> {
 
 		val schemas = project.container(SchemaConfigExtension::class.java) { name -> SchemaConfigExtension(name, project) }
 
-		val render = project.container(RenderConfigExtension::class.java)
+		val render = project.container(RenderConfigExtension::class.java) { name -> RenderConfigExtension(name, project) }
 
 		val fopRenderer = project.extensions.create("fopRenderer", FopRenderExtension::class.java, schemas, render)
 
@@ -40,6 +40,10 @@ open class FopRendererPlugin : Plugin<Project> {
 			val currentTransformTask = tasks.create("transform" + renderConfig.name.capitalize(), XSLTTransformTask::class.java) {
 				this.renderConfig = renderConfig
 
+				val outputFileName = renderConfig.rootSrcProperty.asFile.map { "fo/${it.nameWithoutExtension}.fo" }
+
+				outputFileProperty.set(project.layout.buildDirectory.file(outputFileName))
+
 				if (renderConfig.isRequiresValidation) {
 					dependsOn(validateAllTask)
 				}
@@ -47,7 +51,8 @@ open class FopRendererPlugin : Plugin<Project> {
 
 			val currentRenderTask = tasks.create("render" + renderConfig.name.capitalize(), FopRenderTask::class.java) {
 				this.renderConfig = renderConfig
-				input = currentTransformTask.outputFile // TODO better PropertyProvider, but outputFile is not configurable, this cannot be changed by user after the fact
+				inputFileProperty.set(currentTransformTask.outputFileProperty)
+
 				dependsOn(currentTransformTask)
 			}
 

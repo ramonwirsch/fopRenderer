@@ -18,10 +18,14 @@ buildScan {
 }
 
 group = "com.github.ramonwirsch"
-version = "0.1.20"
+version = "0.1.23"
 
 repositories {
 	jcenter()
+}
+
+tasks.withType<Javadoc>().configureEach {
+	isEnabled = false
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {

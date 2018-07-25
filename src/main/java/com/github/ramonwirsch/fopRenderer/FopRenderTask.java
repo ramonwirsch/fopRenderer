@@ -6,8 +6,10 @@ import org.apache.fop.apps.MimeConstants;
 import org.apache.fop.cli.InputHandler;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
@@ -20,6 +22,7 @@ import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
 import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
+import javax.inject.Inject;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,7 +30,6 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.inject.Inject;
 
 /**
  * Created by ramonw on 06.11.15.
@@ -35,11 +37,11 @@ import javax.inject.Inject;
 @CacheableTask
 public class FopRenderTask extends DefaultTask {
 
-	private final File outputDir = new File(getProject().getBuildDir(), "doc");
 	private final Logger logger = getLogger();
 	private final WorkerExecutor workerExecutor;
 	private RenderConfigExtension renderConfig;
-	private File input;
+	private final RegularFileProperty inputFileProperty;
+	private final RegularFileProperty outputFileProperty;
 	private boolean update;
 
 	@Inject
@@ -47,6 +49,12 @@ public class FopRenderTask extends DefaultTask {
 		setGroup("build");
 		setDescription("Render all available PDFs using fop");
 		this.workerExecutor = workerExecutor;
+		inputFileProperty = newInputFile();
+		outputFileProperty = newOutputFile();
+
+		Provider<String> outputFileRel = inputFileProperty.getAsFile().map(f -> "doc/" + f.getName().replace(".fo", ".pdf"));
+
+		outputFileProperty.set(getProject().getLayout().getBuildDirectory().file(outputFileRel));
 	}
 
     @TaskAction
@@ -71,7 +79,7 @@ public class FopRenderTask extends DefaultTask {
 
 			workerExecutor.submit(RenderWorker.class, (config) -> {
 				config.setIsolationMode(IsolationMode.NONE);
-				config.setParams(input, getOutputFile(), resourceBaseDir);
+				config.setParams(getInputFile(), getOutputFile(), resourceBaseDir);
 			});
 		} catch (MalformedURLException e) {
 			logger.error("ResourceBaseDir is incorrectly configured!", e);
@@ -133,23 +141,37 @@ public class FopRenderTask extends DefaultTask {
 	}
 
 	@OutputFile
-	public File getOutputFile() {
-		return new File(outputDir, getInput().getName().replace(".fo", ".pdf"));
+	@PathSensitive(PathSensitivity.NAME_ONLY)
+	public RegularFileProperty getOutputFileProperty() {
+		return outputFileProperty;
 	}
 
 	@Internal
+	public File getOutputFile() {
+		return outputFileProperty.getAsFile().get();
+	}
+
+	public void setOutputFile(File file) {
+		outputFileProperty.set(file);
+	}
+
 	private File getRootSrc() {
 		return renderConfig.getRootSrc();
 	}
 
 	@InputFile
 	@PathSensitive(PathSensitivity.NAME_ONLY)
-	public File getInput() {
-		return input;
+	public RegularFileProperty getInputFileProperty() {
+		return inputFileProperty;
 	}
 
-	public void setInput(File input) {
-		this.input = input;
+	@Internal
+	public File getInputFile() {
+		return inputFileProperty.getAsFile().get();
+	}
+
+	public void setInputFile(File input) {
+		inputFileProperty.set(input);
 	}
 
 	@Internal

@@ -2,7 +2,15 @@ package com.github.ramonwirsch.fopRenderer;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.tasks.*;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
@@ -19,22 +27,33 @@ public class XSLTTransformTask extends DefaultTask {
 
 	private final WorkerExecutor workerExecutor;
 	private RenderConfigExtension renderConfig;
+	private final RegularFileProperty outputProperty;
 
 	@Inject
 	public XSLTTransformTask(WorkerExecutor workerExecutor) {
 		this.workerExecutor = workerExecutor;
 		setGroup("build");
+		outputProperty = newOutputFile();
 	}
 
 	@InputFiles
 	@PathSensitive(PathSensitivity.RELATIVE)
 	public FileCollection getDependencies() {
-		return (renderConfig.getDependencies() != null) ? renderConfig.getDependencies() : getProject().fileTree(renderConfig.getRootSrc().getParentFile());
+		return renderConfig.getDependencies();
 	}
 
-    @OutputFile
+    @Internal
 	public File getOutputFile() {
-		return new File(new File(getProject().getBuildDir(), "fo"), getRenderConfig().getRootSrc().getName().replace(".xml", ".fo"));
+		return outputProperty.getAsFile().get();
+	}
+
+	public void setOutputFile(File outputFile) {
+		outputProperty.set(outputFile);
+	}
+
+	@OutputFile
+	public RegularFileProperty getOutputFileProperty() {
+		return outputProperty;
 	}
 
 	@InputFile
@@ -62,6 +81,7 @@ public class XSLTTransformTask extends DefaultTask {
 
 	public void setRenderConfig(RenderConfigExtension renderConfig) {
 		this.renderConfig = renderConfig;
+
 	}
 
 	@TaskAction
