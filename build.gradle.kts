@@ -18,7 +18,7 @@ buildScan {
 }
 
 group = "com.github.ramonwirsch"
-version = "0.1.23"
+version = "0.2.0"
 
 repositories {
 	jcenter()
@@ -32,6 +32,16 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 	kotlinOptions {
 		jvmTarget = "1.8"
 	}
+}
+
+java.sourceSets {
+	"functionalTest" {
+
+	}
+}
+
+gradlePlugin {
+//	testSourceSets(java.sourceSets["functionalTest"])
 }
 
 dependencies {

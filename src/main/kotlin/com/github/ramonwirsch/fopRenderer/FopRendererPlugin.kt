@@ -4,6 +4,7 @@ import com.github.ramonwirsch.fopRenderer.validation.XMLValidatorTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.tasks.TaskProvider
 
 open class FopRendererPlugin : Plugin<Project> {
 
@@ -18,45 +19,57 @@ open class FopRendererPlugin : Plugin<Project> {
 
 		val tasks = project.tasks
 
-		val validateAllTask = tasks.create("validate") {
-			group = "verification"
-			description = "Validate all XML files"
-		}
-
-		tasks.findByName("check")!!.dependsOn(validateAllTask)
+		val allValidationTasks = mutableListOf<TaskProvider<XMLValidatorTask>>()
 
 		fopRenderer.schemas.all {
 			val schemaConfig = this
-			val currentValidationTask = tasks.create("validate" + schemaConfig.name.capitalize(), XMLValidatorTask::class.java) { this.schemaConfig = schemaConfig }
+			val currentValidationTask = tasks.register("validate" + schemaConfig.name.capitalize(), XMLValidatorTask::class.java) { this.schemaConfig = schemaConfig }
 
-			validateAllTask.dependsOn(currentValidationTask)
+			allValidationTasks += currentValidationTask
 		}
 
-		val buildTask = tasks.findByName("build")!!
+		val validateAllTask = tasks.register("validate") {
+			group = "verification"
+			description = "Validate all XML files"
+
+			dependsOn(allValidationTasks)
+		}
+
+		tasks.named("check").configure {
+			dependsOn(validateAllTask)
+		}
+
+		val allRenderTasks = mutableListOf<TaskProvider<FopRenderTask>>()
 
 		fopRenderer.render.all {
 			val renderConfig = this
 
-			val currentTransformTask = tasks.create("transform" + renderConfig.name.capitalize(), XSLTTransformTask::class.java) {
+			val currentTransformTask = tasks.register("transform" + renderConfig.name.capitalize(), XSLTTransformTask::class.java) {
 				this.renderConfig = renderConfig
 
-				val outputFileName = renderConfig.rootSrcProperty.asFile.map { "fo/${it.nameWithoutExtension}.fo" }
+				val outputFileName = renderConfig.name
 
-				outputFileProperty.set(project.layout.buildDirectory.file(outputFileName))
+				outputFileProperty.set(project.layout.buildDirectory.file("fo/$outputFileName.fo"))
 
 				if (renderConfig.isRequiresValidation) {
 					dependsOn(validateAllTask)
 				}
 			}
 
-			val currentRenderTask = tasks.create("render" + renderConfig.name.capitalize(), FopRenderTask::class.java) {
-				this.renderConfig = renderConfig
-				inputFileProperty.set(currentTransformTask.outputFileProperty)
+			renderConfig.transformTask = currentTransformTask
 
-				dependsOn(currentTransformTask)
+			val currentRenderTask = tasks.register("render" + renderConfig.name.capitalize(), FopRenderTask::class.java) {
+				this.renderConfig = renderConfig
+				inputFileProperty.set(currentTransformTask.get().outputFileProperty)
 			}
 
-			buildTask.dependsOn(currentRenderTask)
+			renderConfig.renderTask = currentRenderTask
+
+			allRenderTasks += currentRenderTask
+		}
+
+		tasks.named("build").configure {
+			dependsOn(allRenderTasks)
 		}
 	}
 

@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.setValue
@@ -50,4 +51,8 @@ class RenderConfigExtension(val name: String, project: Project) {
 	 * whether all validations must have passed before trying to render
 	 */
 	var isRequiresValidation: Boolean = true
+
+	lateinit var transformTask: TaskProvider<XSLTTransformTask>
+
+	lateinit var renderTask: TaskProvider<FopRenderTask>
 }

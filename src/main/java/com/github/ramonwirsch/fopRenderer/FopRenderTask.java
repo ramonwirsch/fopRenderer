@@ -52,7 +52,7 @@ public class FopRenderTask extends DefaultTask {
 		inputFileProperty = newInputFile();
 		outputFileProperty = newOutputFile();
 
-		Provider<String> outputFileRel = inputFileProperty.getAsFile().map(f -> "doc/" + f.getName().replace(".fo", ".pdf"));
+		Provider<String> outputFileRel = getProject().provider(() -> "doc/"+renderConfig.getName()+".pdf");
 
 		outputFileProperty.set(getProject().getLayout().getBuildDirectory().file(outputFileRel));
 	}
