@@ -144,7 +144,6 @@ public class FopRenderTask extends DefaultTask {
 
 
 	@OutputFile
-	@PathSensitive(PathSensitivity.NAME_ONLY)
 	public RegularFileProperty getOutputFileProperty() {
 		return outputFileProperty;
 	}
