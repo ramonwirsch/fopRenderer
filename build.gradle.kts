@@ -1,6 +1,6 @@
 plugins {
-	id("com.gradle.plugin-publish") version "0.9.10"
-	id("com.github.ben-manes.versions") version "0.20.0"
+	id("com.gradle.plugin-publish") version "0.12.0"
+	id("com.github.ben-manes.versions") version "0.29.0"
 	`java-gradle-plugin`
 	maven
 	`embedded-kotlin`
@@ -13,7 +13,7 @@ java {
 
 
 group = "com.github.ramonwirsch"
-version = "0.2.0"
+version = "0.3.0"
 
 repositories {
 	jcenter()
