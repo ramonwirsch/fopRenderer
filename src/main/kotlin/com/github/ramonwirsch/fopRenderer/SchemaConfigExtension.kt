@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.file.FileCollection
 import java.io.File
+import java.io.FileNotFoundException
 import java.net.MalformedURLException
 import java.net.URL
 
@@ -43,7 +44,7 @@ class SchemaConfigExtension(
 	 *
 	 */
 	var files: FileCollection
-		get() = _files ?: throw ProjectConfigurationException("No files have been configured for SchemaConfig $name", null)
+		get() = _files ?: throw ProjectConfigurationException("No files have been configured for SchemaConfig $name", FileNotFoundException())
 		set(value) {
 			_files = project.files(value)
 		}

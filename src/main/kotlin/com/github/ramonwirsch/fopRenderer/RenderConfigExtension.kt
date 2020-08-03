@@ -12,7 +12,7 @@ import java.io.File
 
 class RenderConfigExtension(val name: String, project: Project) {
 
-	val rootSrcProperty: RegularFileProperty = project.layout.fileProperty()
+	val rootSrcProperty: RegularFileProperty = project.objects.fileProperty()
 
 	/**
 	 * Root source file to render

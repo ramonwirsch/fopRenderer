@@ -1,5 +1,4 @@
 plugins {
-	`build-scan` version "1.15.1"
 	id("com.gradle.plugin-publish") version "0.9.10"
 	id("com.github.ben-manes.versions") version "0.20.0"
 	`java-gradle-plugin`
@@ -12,10 +11,6 @@ java {
 	sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
-buildScan {
-	setLicenseAgreementUrl("https://gradle.com/terms-of-service")
-	setLicenseAgree("yes")
-}
 
 group = "com.github.ramonwirsch"
 version = "0.2.0"
@@ -34,12 +29,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 	}
 }
 
-java.sourceSets {
-	"functionalTest" {
-
-	}
-}
-
 gradlePlugin {
 //	testSourceSets(java.sourceSets["functionalTest"])
 }
@@ -54,13 +43,15 @@ dependencies {
 pluginBundle {
 	website = "https://github.com/ramonwirsch/fopRenderer"
 	vcsUrl = "https://github.com/ramonwirsch/fopRenderer"
-	description = "Plugin that can render documents using Apache FOP. It can also validate XMLs against XSD schemas."
 	tags = listOf("Apache FOP", "FOP", "XML", "XSD", "Validation", "XML Schema Validation")
-
-	(plugins) {
-		"fopRendererPlugin" {
+}
+gradlePlugin {
+	plugins {
+		create("fopRendererPlugin") {
 			id = "com.github.ramonwirsch.FopRenderer"
 			displayName = "FOP Renderer plugin"
+			description = "Plugin that can render documents using Apache FOP. It can also validate XMLs against XSD schemas."
+			implementationClass = "com.github.ramonwirsch.fopRenderer.FopRendererPlugin"
 		}
 	}
 }
