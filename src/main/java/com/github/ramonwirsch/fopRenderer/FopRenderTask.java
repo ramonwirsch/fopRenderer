@@ -49,8 +49,8 @@ public class FopRenderTask extends DefaultTask {
 		setGroup("build");
 		setDescription("Render all available PDFs using fop");
 		this.workerExecutor = workerExecutor;
-		inputFileProperty = newInputFile();
-		outputFileProperty = newOutputFile();
+		inputFileProperty = getProject().getObjects().fileProperty();
+		outputFileProperty = getProject().getObjects().fileProperty();
 
 		Provider<String> outputFileRel = getProject().provider(() -> "doc/"+renderConfig.getName()+".pdf");
 
@@ -72,6 +72,7 @@ public class FopRenderTask extends DefaultTask {
 			logger.info("removed: {}", file);
 			update = true;
 		});
+
 
 
 		try {
@@ -140,8 +141,9 @@ public class FopRenderTask extends DefaultTask {
 		return getProject().fileTree(params);
 	}
 
+
+
 	@OutputFile
-	@PathSensitive(PathSensitivity.NAME_ONLY)
 	public RegularFileProperty getOutputFileProperty() {
 		return outputFileProperty;
 	}

@@ -28,6 +28,7 @@ open class XMLValidatorTask
 
 	init {
 		group = "verification"
+		outputs.upToDateWhen { true }
 	}
 
 	val inputFiles: FileCollection

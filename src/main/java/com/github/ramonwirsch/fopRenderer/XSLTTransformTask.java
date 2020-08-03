@@ -33,7 +33,7 @@ public class XSLTTransformTask extends DefaultTask {
 	public XSLTTransformTask(WorkerExecutor workerExecutor) {
 		this.workerExecutor = workerExecutor;
 		setGroup("build");
-		outputProperty = newOutputFile();
+		outputProperty = getProject().getObjects().fileProperty();
 	}
 
 	@InputFiles
