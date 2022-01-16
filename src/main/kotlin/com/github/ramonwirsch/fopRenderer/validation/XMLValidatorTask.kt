@@ -4,9 +4,15 @@ import com.github.ramonwirsch.fopRenderer.FopRendererPlugin
 import com.github.ramonwirsch.fopRenderer.SchemaConfigExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.FileType
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import org.gradle.api.tasks.incremental.IncrementalTaskInputs
-import org.gradle.workers.IsolationMode
+import org.gradle.work.ChangeType
+import org.gradle.work.Incremental
+import org.gradle.work.InputChanges
+import org.gradle.workers.WorkAction
+import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 import org.xml.sax.SAXException
 import java.io.File
@@ -32,6 +38,7 @@ open class XMLValidatorTask
 	}
 
 	val inputFiles: FileCollection
+		@Incremental
 		@InputFiles
 		@PathSensitive(PathSensitivity.RELATIVE)
 		get() = schemaConfig.files
@@ -72,7 +79,7 @@ open class XMLValidatorTask
 
 	@TaskAction
 	@Throws(ParserConfigurationException::class, SAXException::class)
-	internal fun execute(inputs: IncrementalTaskInputs) {
+	internal fun execute(inputs: InputChanges) {
 		val validationSchema = if (!FopRendererPlugin.isOffline(project) && schemaConfig.isUseInherentSchemas) {
 			logger.info("Using inherent schemas")
 			SchemaConfigExtension.FALLBACK_URL
@@ -84,60 +91,52 @@ open class XMLValidatorTask
 
 		val toValidate = HashSet<File>()
 
-		if (!isFullValidation) {
-			inputs.outOfDate {
+		if (!isFullValidation && inputs.isIncremental) {
+			inputs.getFileChanges(inputFiles).forEach { change ->
 				when {
-					isFullValidation || file.isDirectory -> {
+					change.fileType == FileType.DIRECTORY -> {
+						// Nothing to do, still up-to-date
 					}
-					file.name.endsWith(".xsd") -> {
-						isFullValidation = true
-						logger.info("Schema {} changed, full validation!", file)
+					change.changeType == ChangeType.REMOVED -> {
+						logger.info("removed: {}", change.file)
+						// Nothing To do, still up-to-date
 					}
 					else -> {
+						val file = change.file
 						logger.info("XML out of date: {}", file)
 						toValidate += file
 					}
 				}
 			}
-
-			inputs.removed {
-				val name = file.name
-
-				if (name.endsWith(".xsd")) {
-					isFullValidation = true
-					logger.info("Schema {} removed, full validation!", file)
-				} else {
-					logger.info("removed: {}", name)
-				}
-			}
 		}
 
-		if (isFullValidation) {
+		if (isFullValidation || !inputs.isIncremental) {
 			toValidate.addAll(schemaConfig.files.files)
 			logger.warn("Validating all inputs")
 		}
 
 		toValidate.forEach { v ->
-			workerExecutor.submit(ValidationWorker::class.java) {
-				isolationMode = IsolationMode.NONE
-				setParams(validationSchema, v)
+			workerExecutor.noIsolation().submit(ValidationWorker::class.java) {
+				this.validationSchema.set(validationSchema)
+				input.set(v)
 			}
 		}
 	}
-}
 
-open private class ValidationWorker
-@Inject constructor(
-		validationSchema: URL?,
-		val input: File
-) : Runnable {
-
-	private val actualValSchema = if (validationSchema == SchemaConfigExtension.FALLBACK_URL) null else validationSchema
-
-	private val validator = XMLValidatorFactory.forSchema(actualValSchema).createValidator()
-
-	override fun run() {
-		validator.validateOrThrow(input)
+	interface ValidationParameters: WorkParameters {
+		val validationSchema: Property<URL>
+		val input: RegularFileProperty
 	}
 
+	abstract class ValidationWorker: WorkAction<ValidationParameters> {
+
+		override fun execute() {
+			val params = parameters
+			val validationSchema = params.validationSchema.get()
+
+			val validator = XMLValidatorFactory.forSchema(validationSchema).createValidator()
+
+			validator.validateOrThrow(params.input.asFile.get())
+		}
+	}
 }

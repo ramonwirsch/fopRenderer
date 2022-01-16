@@ -1,8 +1,8 @@
 plugins {
-	id("com.gradle.plugin-publish") version "0.12.0"
-	id("com.github.ben-manes.versions") version "0.29.0"
+	id("com.gradle.plugin-publish") version "0.19.0"
+	id("com.github.ben-manes.versions") version "0.41.0"
 	`java-gradle-plugin`
-	maven
+	`maven-publish`
 	`embedded-kotlin`
 	`kotlin-dsl`
 }
@@ -13,10 +13,11 @@ java {
 
 
 group = "com.github.ramonwirsch"
-version = "0.3.0"
+version = "0.4.0"
 
 repositories {
-	jcenter()
+	gradlePluginPortal()
+	mavenCentral()
 }
 
 tasks.withType<Javadoc>().configureEach {
@@ -34,10 +35,10 @@ gradlePlugin {
 }
 
 dependencies {
-	compile("org.apache.avalon.framework:avalon-framework-impl:4.3.1")
-	compile("org.apache.xmlgraphics:fop:1.1")
-	runtime("net.sf.offo:fop-hyph:2.0")
-	compile("xalan:xalan:2.7.2")
+	implementation("org.apache.avalon.framework:avalon-framework-impl:4.3.1")
+	implementation("org.apache.xmlgraphics:fop:2.6")
+	implementation("net.sf.offo:fop-hyph:2.0")
+	implementation("xalan:xalan:2.7.2")
 }
 
 pluginBundle {
