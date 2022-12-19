@@ -106,3 +106,9 @@ The `render` block is optional, as is any actual schema group, so both functions
 
 the `render<>` tasks depend each on their `transform<>` task, which in turn depends on `validate`.
 the base `build` task is configured to depend on all `render<>` tasks, the base `check` task is configured to depend on `validate`
+
+### Contributing
+I originally wrote this plugin to replace really old Ant and Make code in a preexisting project. Therefore the plugin did, what I needed it to do and I just used said project to test the plugin, instead of writing automated tests for it.
+Given, that I no longer have any active need for the plugin, I am very unlikely to add any new features to it. I am however happy to update the plugin to keep working on new Gradle versions. If the plugin starts failing, create an issue.
+I am also happy to accept merge requests with additional functionality and will test the plugin against my old use case and publish it.
+But if new features are added, we really also need to add (automated) tests, as I otherwise cannot verify the plugin keeps working, before publishing updates. I will try to find time and aid in adding CI support and tests for my existing functionality, should there be any interest in doing so.
