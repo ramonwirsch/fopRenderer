@@ -1,5 +1,7 @@
 # fopRenderer
-Gradle Plugin for Validating XMLs and rendering them with Apache FOP
+Gradle Plugin for Validating XMLs and rendering them with Apache FOP.
+
+*Note: The plugin is no longer in active development by me. I will try to maintain existing functionality whenever needed. Also see 'Contributing'.*
 
 ## Usage
 
