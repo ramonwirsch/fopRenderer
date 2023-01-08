@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<airport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://www.github.com/ramonwirsch">
+
+	<icao>EDDH</icao>
+	<iata>HAM</iata>
+	<name>Hamburg Airport Helmut Schmidt</name>
+	<city>Hamburg</city>
+	<country>DE</country>
+
+</airport>

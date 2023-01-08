@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<airport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://www.github.com/ramonwirsch">
+
+	<icao>EDDF</icao>
+	<iata>FRA</iata>
+	<name>Frankfurt Airport</name>
+	<city>Frankfurt</city>
+	<country>DE</country>
+
+</airport>
