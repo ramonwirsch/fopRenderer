@@ -1,7 +1,6 @@
 plugins {
-	id("com.gradle.plugin-publish") version "0.19.0"
+	id("com.gradle.plugin-publish") version "1.1.0"
 	id("com.github.ben-manes.versions") version "0.41.0"
-	`java-gradle-plugin`
 	`maven-publish`
 	`embedded-kotlin`
 	`kotlin-dsl`
