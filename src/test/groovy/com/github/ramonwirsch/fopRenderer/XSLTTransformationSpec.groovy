@@ -1,5 +1,6 @@
 package com.github.ramonwirsch.fopRenderer
 
+import spock.lang.Issue
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.lang.TempDir
@@ -93,6 +94,7 @@ class XSLTTransformationSpec extends Specification {
 	}
 	
 	@PendingFeature
+	@Issue("https://github.com/ramonwirsch/fopRenderer/issues/14")
 	def "supports xslt 2 stylesheets"() {
 		given: "a well-formed source"
 		def src = fsFixture.resolve('xml/HAM.xml').toFile()
