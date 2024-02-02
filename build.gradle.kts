@@ -5,6 +5,9 @@ plugins {
 	`maven-publish`
 	`embedded-kotlin`
 	`kotlin-dsl`
+	`groovy`
+	`jacoco`
+	`eclipse`
 }
 
 java {
@@ -39,6 +42,14 @@ dependencies {
 	implementation("org.apache.xmlgraphics:fop:2.6")
 	implementation("net.sf.offo:fop-hyph:2.0")
 	implementation("xalan:xalan:2.7.2")
+
+	testImplementation(platform("org.spockframework:spock-bom:2.3-groovy-3.0"))
+	testImplementation("org.spockframework:spock-core")
+	testImplementation(gradleTestKit())
+}
+
+tasks.withType<Test>().configureEach {
+	useJUnitPlatform()
 }
 
 pluginBundle {

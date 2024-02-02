@@ -1,0 +1,17 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="https://www.github.com/ramonwirsch"
+	xmlns="https://www.github.com/ramonwirsch" elementFormDefault="qualified">
+
+	<xs:element name="airport">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="icao" />
+				<xs:element name="iata" />
+				<xs:element name="name" />
+				<xs:element name="city" />
+				<xs:element name="country" />				
+			</xs:sequence>
+		</xs:complexType>
+
+	</xs:element>
+
+</xs:schema>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<airport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://www.github.com/ramonwirsch">
+
+	<icao>KPHX</icao>
+	<iata>PHX</iata>
+	<name>Phoenix Sky Harbor International Airport</name>
+	<city>Phoenix</city>
+	<country>US</country>
+
+</airport>
